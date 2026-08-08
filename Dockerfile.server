@@ -1,0 +1,31 @@
+FROM ubuntu:22.04
+
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/Bogota
+WORKDIR /home/ansible
+# Install SSH server, sudo, and Python (required for Ansible modules)
+RUN apt-get update && apt-get install -y openssh-server sudo python3 python3-pip ansible \
+    && mkdir /var/run/sshd
+
+# Create the ansible user with a real login shell and passwordless sudo
+RUN useradd -m -s /bin/bash ansible \
+    && adduser ansible sudo \
+    && echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Harden sshd: key-only auth, no root login
+# (appending instead of sed — sed depends on exact default text matching,
+# appended lines always win since sshd honors the last occurrence)
+RUN { echo "PasswordAuthentication no"; \
+      echo "PermitRootLogin no"; \
+      echo "PubkeyAuthentication yes"; } >> /etc/ssh/sshd_config
+
+# Ensure host keys exist (normally auto-generated on install, but explicit
+# here so the container never fails to boot sshd due to missing keys)
+# RUN ssh-keygen -A
+
+EXPOSE 22
+COPY script_init.sh ./script_init.sh
+RUN chmod +x ./script_init.sh
+# Run sshd in the foreground so it becomes PID 1 and keeps the container alive
+CMD ["./script_init.sh"]

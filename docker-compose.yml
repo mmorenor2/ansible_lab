@@ -1,0 +1,55 @@
+version: "3.9"
+
+networks:
+  ansible_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+# volumes:
+#   ansible_resources:
+
+services:
+  server_ans:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: server_ans
+    hostname: server_ans
+    # command: sleep infinity
+    networks:
+      ansible_net:
+        ipv4_address: 172.20.0.2
+    volumes:
+      - ./resources:/home/ansible/resources
+
+  node1:
+    build: .
+    container_name: node1
+    hostname: node1
+    # command: sleep infinity
+    networks:
+      ansible_net:
+        ipv4_address: 172.20.0.10
+  node2:
+    build: .
+    container_name: node2
+    hostname: node2
+    # command: sleep infinity
+    networks:
+      ansible_net:
+        ipv4_address: 172.20.0.11
+
+  node3:
+    build: .
+    container_name: node3
+    hostname: node3
+    # command: sleep infinity
+    networks:
+      ansible_net:
+        ipv4_address: 172.20.0.12
+
+
+
+  
