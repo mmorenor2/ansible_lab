@@ -219,4 +219,4 @@ __marimo__/
 
 
 #private_keys
-resources/
+resources/ssh_conf
