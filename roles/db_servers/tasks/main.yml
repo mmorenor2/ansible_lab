@@ -1,0 +1,14 @@
+- name: install mariadb  packages on Ubuntu
+  tags: db,ubuntu
+  apt:
+    name:
+      - mariadb-server
+    state: latest
+  when: ansible_distribution == "Ubuntu"
+
+- name: install mariadb  packages on CentOS
+  dnf:
+    name:
+      - mariadb
+    state: latest
+  when: ansible_distribution == "CentOS"

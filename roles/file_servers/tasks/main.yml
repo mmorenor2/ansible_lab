@@ -1,0 +1,6 @@
+- name: install file samba  packages on Ubuntu/Centos
+  tags: ubuntu,centos,file
+  package:
+    name:
+      - samba
+    state: latest

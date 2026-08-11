@@ -23,6 +23,7 @@ services:
         ipv4_address: 172.20.0.2
     volumes:
       - ./resources:/home/ansible/resources
+      - ./roles:/home/ansible/roles
 
   node1:
     build: .

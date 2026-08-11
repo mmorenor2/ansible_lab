@@ -1,0 +1,32 @@
+- name: install apache2 and php  packages on Ubuntu
+  tags: apache,ubuntu
+  package:
+    name: 
+      - {{ apache_package_name }}
+      - {{ php_package_name }}
+    state: latest  
+
+- name: start apache2 in Ubuntu
+  service:
+    name: {{ apache_package_name }}
+    state: started
+    enabled: yes
+
+- name: change Timeout to 200 in apache2
+  tags: apache, ubuntu
+  lineinfile:
+    path: /etc/apache2/apache2.conf
+    regexp: '^Timeout'
+    line: Timeout 200
+  notify: restart_apache
+
+- name: copy index to server
+  tags: apache,apache2,httpd
+  copy:
+    src: /home/ansible/resources/default_site.html
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: 0644
+
+
