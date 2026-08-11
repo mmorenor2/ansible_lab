@@ -3,6 +3,7 @@ FROM ubuntu:22.04
 # Install SSH server, sudo, and Python (required for Ansible modules)
 RUN apt-get update && apt-get install -y openssh-server sudo python3 \
     && mkdir /var/run/sshd
+RUN apt-get install -y iputils-ping traceroute net-tools dnsutils iproute2
 
 # Create the ansible user with a real login shell and passwordless sudo
 RUN useradd -m -s /bin/bash ansible \
@@ -14,7 +15,7 @@ RUN mkdir -p /home/ansible/.ssh \
     && chmod 700 /home/ansible/.ssh
 
 # Copy in the public key only (never the private key)
-COPY ./resources/ansible_lab.pub /home/ansible/.ssh/authorized_keys
+COPY ./resources/ssh_conf/ansible_lab.pub /home/ansible/.ssh/authorized_keys
 
 RUN chmod 600 /home/ansible/.ssh/authorized_keys \
     && chown -R ansible:ansible /home/ansible/.ssh

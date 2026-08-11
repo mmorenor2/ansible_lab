@@ -1,0 +1,133 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: update repo cache (Centos)
+    tags: always
+    dnf:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "CentOS"
+
+  - name: update repo cache (Ubuntu)
+    tags: always
+    apt:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: all
+  become: true
+  tasks:
+    
+  - name: add ssh key for simone
+    tags: always
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMOT7gl7lpziispTXA/FZjXFcizX70PRJIq7nGGrBkuH ansible_lab"
+
+
+- hosts: workstation
+  become: true
+  tasks:
+
+  - name: install unzip
+    package:
+      name: unzip
+  
+  - name: install terraform
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/1.15.8/terraform_1.15.8_linux_amd64.zip    
+      dest: /usr/local/bin
+      remote_src: yes
+      mode: 0755
+      owner: root
+      group: root
+
+
+- hosts: web_servers
+  become: true
+  tasks:
+
+  - name: install apache2 and php  packages on Ubuntu
+    tags: apache,ubuntu
+    apt:
+      name: 
+        - apache2
+        - libapache2-mod-php
+      state: latest  
+    when: ansible_distribution == "Ubuntu"
+ 
+  - name: install httpd and php  packages on CentOS
+    dnf:
+      name: 
+        - httpd
+        - php
+      state: latest  
+    when: ansible_distribution == "CentOS"
+
+  - name: start apache2 in Ubuntu
+    tags: apache, ubuntu
+    service:
+      name: apache2
+      state: started
+      enabled: yes
+    when: ansible_distribution == "Ubuntu"
+
+  - name: change Timeout to 200 in apache2
+    tags: apache, ubuntu
+    lineinfile:
+      path: /etc/apache2/apache2.conf
+      regexp: '^Timeout'
+      line: Timeout 200
+    register: apache
+
+  - name: restart after the file config change!!
+    tags: apache, ubuntu
+    service:
+      name: apache2
+      state: restarted
+    when: apache.changed  
+
+  - name: copy index to server
+    tags: apache,apache2,httpd
+    copy:
+      src: /home/ansible/resources/default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+     
+- hosts: db_servers
+  become: true
+  tasks:
+
+  - name: install mariadb  packages on Ubuntu
+    tags: db,ubuntu
+    apt:
+      name: 
+        - mariadb-server
+      state: latest  
+    when: ansible_distribution == "Ubuntu"
+ 
+  - name: install mariadb  packages on CentOS
+    dnf:
+      name: 
+        - mariadb
+      state: latest  
+    when: ansible_distribution == "CentOS"
+
+- hosts: file_servers
+  become: true
+  tasks:
+
+  - name: install file samba  packages on Ubuntu/Centos
+    tags: ubuntu,centos,file
+    package:
+      name: 
+        - samba
+      state: latest  
+ 
