@@ -43,3 +43,12 @@ All playbooks live in [resources/playbooks/](resources/playbooks/) and are run f
 docker exec -it server_ans bash
 ansible-playbook resources/playbooks/bootstrap.yml
 ```
+
+| Playbook | Description |
+|---|---|
+| [bootstrap.yml](resources/playbooks/bootstrap.yml) | First-run setup for a fresh node: updates the package cache, creates the `simone` user, adds their SSH key, and installs a passwordless-sudo file for them. |
+| [install_apache.yml](resources/playbooks/install_apache.yml) | Installs Apache2 and PHP support (`libapache2-mod-php`) on Ubuntu hosts. No OS guard — assumes every targeted host is Ubuntu. |
+| [install_apache_v1.yml](resources/playbooks/install_apache_v1.yml) | Same as `install_apache.yml`, but each task is guarded with `when: ansible_distribution == "Ubuntu"` so it skips cleanly on non-Ubuntu hosts instead of failing. |
+| [remove_apache.yml](resources/playbooks/remove_apache.yml) | Uninstalls Apache2 and its PHP module (`state: absent`) — the inverse of the install playbooks. |
+| [site.yml](resources/playbooks/site.yml) | The full multi-role site playbook, written as plain tasks (not roles). Updates repo caches, adds the `simone` SSH key everywhere, installs Terraform on `workstation` hosts, sets up Apache/httpd + a custom Timeout + default site on `web_servers`, MariaDB on `db_servers`, and Samba on `file_servers`. Supports both Ubuntu (`apt`) and CentOS (`dnf`) per task. |
+| [site_roles.yml](resources/playbooks/site_roles.yml) | The role-based equivalent of `site.yml`: refreshes the repo cache, then applies the `base` role to all hosts and the `workstations`, `web_servers`, `db_servers`, and `file_servers` roles to their matching inventory groups. |
