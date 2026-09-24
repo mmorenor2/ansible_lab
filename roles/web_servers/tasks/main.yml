@@ -2,13 +2,13 @@
   tags: apache,ubuntu
   package:
     name: 
-      - {{ apache_package_name }}
-      - {{ php_package_name }}
+      - "{{ apache_package_name }}"
+      - "{{ php_package_name }}"
     state: latest  
 
 - name: start apache2 in Ubuntu
   service:
-    name: {{ apache_package_name }}
+    name: "{{ apache_package_name }}"
     state: started
     enabled: yes
 

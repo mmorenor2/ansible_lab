@@ -24,6 +24,7 @@ services:
     volumes:
       - ./resources:/home/ansible/resources
       - ./roles:/home/ansible/roles
+      - ./host_vars:/home/ansible/host_vars
 
   node1:
     build: .

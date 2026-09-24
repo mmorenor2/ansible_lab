@@ -29,6 +29,8 @@ RUN { echo "PasswordAuthentication no"; \
 
 EXPOSE 22
 COPY script_init.sh ./script_init.sh
+# copy the public key only (never the private key) from the host into the container 
+# using the script_init.sh file and adjust the permissions of the .ssh directory and authorized_keys file
 RUN chmod +x ./script_init.sh
 # Run sshd in the foreground so it becomes PID 1 and keeps the container alive
 CMD ["./script_init.sh"]
